@@ -46,9 +46,9 @@ WELCOME_MESSAGE = """
 
 🎯 **COMMANDES DISPONIBLES:**
 • `/start` - Accueil
-• `/stat` - Statistiques de réussite (Dame Q)
+• `/stat` - Statistiques de réussite (Roi K)
 • `/bilan` - Bilan des prédictions stockées
-• `/inter` - Gérer le Mode Intelligent N-2 → Q à N
+• `/inter` - Gérer le Mode Intelligent N-2 → K à N
 
 🎯 **Version DEPLOY299999 - Port 10000**
 """
@@ -199,7 +199,7 @@ class TelegramHandlers:
         message = (
             f"**🚨 Configuration du Canal 🚨**\n\n"
             f"Le bot a été ajouté au chat **`{chat_title}`** (ID: `{chat_id}`).\n\n"
-            f"Veuillez confirmer le rôle de ce chat pour les prédictions Dame (Q):"
+            f"Veuillez confirmer le rôle de ce chat pour les prédictions Roi (K):"
         )
         self.send_message(chat_id, message, reply_markup=keyboard)
 
@@ -373,3 +373,4 @@ class TelegramHandlers:
 
         except Exception as e:
             logger.error(f"❌ Erreur critique lors du traitement de l'update: {e}")
+        
