@@ -406,17 +406,17 @@ class CardPredictor:
                 # Cartes fortes (A, K, Q, J)
                 all_high_cards = HIGH_VALUE_CARDS
                 
-                # --- [NOUVEAU] RÈGLE STATIQUE : 10 de Cœur (10❤️ ou 10♥️) ---
-                has_10_heart = False
+                # --- [MODIFIÉ] RÈGLE STATIQUE : 8 de Cœur (8❤️ ou 8♥️) ---
+                has_8_heart = False
                 for v, c in card_details:
                     # Le symbole est déjà normalisé en ♥️ par extract_card_details
-                    if v == '10' and c == '♥️':
-                        has_10_heart = True
+                    if v == '8' and c == '♥️':
+                        has_8_heart = True
                         break
                 
-                if has_10_heart:
+                if has_8_heart:
                     predicted_value = "K"
-                    logger.info("🔮 PRÉDICTION STATIQUE: 10 de Cœur détecté.")
+                    logger.info("🔮 PRÉDICTION STATIQUE: 8 de Cœur détecté.")
 
                 # --- [NOUVEAU] RÈGLE STATIQUE: Total Score >= 45 (#T45) ---
                 elif not predicted_value:
@@ -428,7 +428,7 @@ class CardPredictor:
                 # --- [NOUVEAU] RÈGLE STATIQUE: Absence de K consécutive (Gap >= 4) ---
                                 # --- [NOUVEAU] RÈGLE STATIQUE: Absence de K consécutive (Gap >= 4) ---
                 elif not predicted_value and self.inter_data:
-                    # Trouver le dernier jeu où K est apparu (basé sur inter_data qui stocke les succès)
+                                        # Trouver le dernier jeu où K est apparu (basé sur inter_data qui stocke les succès)
                     last_k_entry = max(self.inter_data, key=lambda x: x['numero_resultat'], default=None)
                     
                     if last_k_entry:
@@ -455,30 +455,31 @@ class CardPredictor:
 
 
                 # -----------------------------------------------------------
-                # NOUVELLE RÈGLE STATIQUE 3: G1 (K+J) ET G2 (Faible)
+                # [MODIFIÉ] NOUVELLE RÈGLE STATIQUE 3: G1 (A+J) ET G2 (Faible)
                 # -----------------------------------------------------------
                 
-                # Condition G1: Contient K ET J (Combinaison)
+                # Condition G1: Contient A ET J (Combinaison)
                 elif not predicted_value:
-                    has_k_in_g1 = 'K' in card_values
+                    has_a_in_g1 = 'A' in card_values
                     has_j_in_g1 = 'J' in card_values
                     
                     # Condition G2: AUCUNE carte de haute valeur (A, K, Q, J)
                     is_g2_weak = not any(v in all_high_cards for v in second_group_values)
 
-                    if has_k_in_g1 and has_j_in_g1 and is_g2_weak:
+                    if has_a_in_g1 and has_j_in_g1 and is_g2_weak:
                         predicted_value = "K"
-                        logger.info("🔮 PRÉDICTION STATIQUE 3: G1 (K+J) et G2 (Faible) combinés.")
+                        logger.info("🔮 PRÉDICTION STATIQUE 3: G1 (A+J) et G2 (Faible) combinés.")
 
                 # -----------------------------------------------------------
-                # NOUVELLE RÈGLE STATIQUE 4: Deux groupes faibles consécutifs
+                # [MODIFIÉ] NOUVELLE RÈGLE STATIQUE 4: Absence A,K,Q,J consécutifs
                 # -----------------------------------------------------------
                 elif not predicted_value:
                     # Les cartes fortes pour cette règle sont: A, K, Q, J
+                    # 1. Vérifier si G1 du jeu actuel (N) est faible
                     is_current_g1_weak = not any(v in all_high_cards for v in card_values)
                     
                     if is_current_g1_weak:
-                        # Vérifier l'historique du jeu précédent (N-1)
+                        # 2. Vérifier l'historique du jeu précédent (N-1)
                         previous_game_number = game_number - 1
                         previous_entry = self.sequential_history.get(previous_game_number)
 
@@ -489,11 +490,12 @@ class CardPredictor:
                             # Extraire les valeurs (ex: '9', '7')
                             previous_values = [re.match(r'(\d+|[AKQJ])', c).group(1) for c in previous_cards if re.match(r'(\d+|[AKQJ])', c)]
                             
+                            # 3. Vérifier si G1 du jeu précédent (N-1) est faible
                             is_previous_g1_weak = not any(v in all_high_cards for v in previous_values)
                             
                             if is_previous_g1_weak:
                                 predicted_value = "K"
-                                logger.info(f"🔮 PRÉDICTION STATIQUE 4: G1 faible consécutif détecté (Jeu {previous_game_number} et {game_number}).")
+                                logger.info(f"🔮 PRÉDICTION STATIQUE 4: Absence de A,K,Q,J consécutifs détectée (Jeu {previous_game_number} et {game_number}).")
 
         # ... (Fin de should_predict)
 
